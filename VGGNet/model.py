@@ -11,10 +11,13 @@ class VGGNet(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(512*7*7, 4096),
             nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(4096, 4096),
             nn.ReLU(),
+            nn.Dropout(),
             nn.Linear(4096, num_classes)
         )
+
 
     def forward(self, x):
         out = self.features(x)
@@ -60,14 +63,3 @@ def make_layers(config, batch_norm=True):
                 layers += [conv2d, nn.ReLU(inplace=True)]
             in_channels = out_channels
     return nn.Sequential(*layers)
-
-
-if __name__ == "__main__":
-    features = make_layers(config="E")
-    model = VGGNet(features, num_classes=1000)
-    summary(model, (3, 224, 224), device="cpu")
-    x = torch.randn(4, 3, 224, 224)
-
-    model = model.cuda()
-    x = x.cuda()
-    print(model(x).shape)
